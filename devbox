@@ -36,7 +36,6 @@ fi
 
 docker run -it --rm \
     -v "$HOME:$HOME" \
-    -v /tmp:/tmp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -w "$(pwd)" \
     -e HOME="$HOME" \

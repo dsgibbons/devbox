@@ -60,4 +60,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 
 ENV SHELL=/usr/bin/fish
 RUN echo 'set -e fish_user_paths; set -gx PATH /usr/local/bin /usr/bin /bin' >> /etc/fish/config.fish
 
+# Trust all git directories (needed when mounting host directories)
+RUN git config --system safe.directory '*'
+
 CMD ["fish"]

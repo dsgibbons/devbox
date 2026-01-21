@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Run the devtools container with your home directory mounted
+# Usage: ./devbox [--build] [--platform linux/amd64|linux/arm64]
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+IMAGE_NAME="devtools"
+FORCE_BUILD=false
+PLATFORM=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --build)
+            FORCE_BUILD=true
+            shift
+            ;;
+        --platform)
+            PLATFORM="$2"
+            shift 2
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Build the image if it doesn't exist or --build flag is passed
+if ! docker image inspect "$IMAGE_NAME" &>/dev/null || [ "$FORCE_BUILD" = true ]; then
+    echo "Building '$IMAGE_NAME'..."
+    if [ -n "$PLATFORM" ]; then
+        docker build --platform "$PLATFORM" -t "$IMAGE_NAME" "$SCRIPT_DIR"
+    else
+        docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
+    fi
+fi
+
+docker run -it --rm \
+    -v "$HOME:$HOME" \
+    -v /tmp:/tmp \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -w "$(pwd)" \
+    -e HOME="$HOME" \
+    -e USER="$USER" \
+    -e PATH="/usr/local/bin:/usr/bin:/bin" \
+    --user "$(id -u):$(id -g)" \
+    --group-add "$(stat -f %g /var/run/docker.sock 2>/dev/null || stat -c %g /var/run/docker.sock)" \
+    --hostname devbox \
+    --network host \
+    "$IMAGE_NAME"

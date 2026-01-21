@@ -37,11 +37,18 @@ if [ "$PULL_IMAGE" = true ]; then
     docker tag "$GHCR_IMAGE" "$IMAGE_NAME"
 # Build the image if it doesn't exist or --build flag is passed
 elif ! docker image inspect "$IMAGE_NAME" &>/dev/null || [ "$FORCE_BUILD" = true ]; then
-    echo "Building '$IMAGE_NAME'..."
-    if [ -n "$PLATFORM" ]; then
-        docker build --platform "$PLATFORM" -t "$IMAGE_NAME" "$SCRIPT_DIR"
+    # If Dockerfile exists locally, build; otherwise pull from GHCR
+    if [ -f "$SCRIPT_DIR/Dockerfile" ]; then
+        echo "Building '$IMAGE_NAME'..."
+        if [ -n "$PLATFORM" ]; then
+            docker build --platform "$PLATFORM" -t "$IMAGE_NAME" "$SCRIPT_DIR"
+        else
+            docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
+        fi
     else
-        docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
+        echo "Pulling '$GHCR_IMAGE'..."
+        docker pull "$GHCR_IMAGE"
+        docker tag "$GHCR_IMAGE" "$IMAGE_NAME"
     fi
 fi
 

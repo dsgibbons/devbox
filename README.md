@@ -14,14 +14,22 @@ A containerised development environment with all my dev tools pre-installed.
 - **docker** - Container CLI
 - **g++** / **clang** - C++ compilers
 
+## Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dsgibbons/devbox/main/install.sh | sh
+```
+
+This installs `devbox` to `~/.local/bin`. Make sure it's in your PATH.
+
 ## Usage
 
 ```bash
-./devbox
+devbox
 ```
 
 This will:
-1. Build the image if it doesn't exist
+1. Pull the image from GHCR (or build locally if Dockerfile present)
 2. Mount your home directory at the same path
 3. Start in your current working directory
 4. Run as your user (preserving file permissions)

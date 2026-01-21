@@ -71,6 +71,7 @@ docker run -it --rm \
     -e HOST_GID="$GROUP_ID" \
     -e TERM="$CONTAINER_TERM" \
     -e COLORTERM="${COLORTERM:-truecolor}" \
+    -e HELIX_RUNTIME="/usr/share/helix-runtime" \
     --user "$USER_ID:$GROUP_ID" \
     ${DOCKER_GROUP:+--group-add "$DOCKER_GROUP"} \
     --hostname devbox \

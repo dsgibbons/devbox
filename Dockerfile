@@ -58,6 +58,6 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 
 
 # Set fish as default shell and ensure container binaries take precedence
 ENV SHELL=/usr/bin/fish
-RUN echo 'set -gx fish_user_paths /usr/local/bin $fish_user_paths' >> /etc/fish/config.fish
+RUN echo 'set -e fish_user_paths; set -gx PATH /usr/local/bin /usr/bin /bin' >> /etc/fish/config.fish
 
 CMD ["fish"]

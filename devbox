@@ -34,6 +34,8 @@ if ! docker image inspect "$IMAGE_NAME" &>/dev/null || [ "$FORCE_BUILD" = true ]
     fi
 fi
 
+RUNTIME_DIR="/tmp/runtime-$(id -u)"
+
 docker run -it --rm \
     -v "$HOME:$HOME" \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -41,8 +43,9 @@ docker run -it --rm \
     -e HOME="$HOME" \
     -e USER="$USER" \
     -e PATH="/usr/local/bin:/usr/bin:/bin" \
+    -e XDG_RUNTIME_DIR="$RUNTIME_DIR" \
     --user "$(id -u):$(id -g)" \
     --group-add "$(stat -f %g /var/run/docker.sock 2>/dev/null || stat -c %g /var/run/docker.sock)" \
     --hostname devbox \
     --network host \
-    "$IMAGE_NAME"
+    "$IMAGE_NAME" fish -c "mkdir -p $RUNTIME_DIR && chmod 700 $RUNTIME_DIR && exec fish"

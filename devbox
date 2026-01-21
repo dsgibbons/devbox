@@ -38,6 +38,14 @@ USER_ID="$(id -u)"
 GROUP_ID="$(id -g)"
 RUNTIME_DIR="/tmp/runtime-$USER_ID"
 
+# Get docker socket group if it exists
+DOCKER_GROUP=""
+DOCKER_SOCK_MOUNT=""
+if [ -S /var/run/docker.sock ]; then
+    DOCKER_SOCK_MOUNT="1"
+    DOCKER_GROUP="$(stat -f %g /var/run/docker.sock 2>/dev/null || stat -c %g /var/run/docker.sock 2>/dev/null)"
+fi
+
 # Map terminal types to container-compatible equivalents with truecolor support
 case "$TERM" in
     xterm-ghostty) CONTAINER_TERM="xterm-direct" ;;
@@ -47,7 +55,7 @@ esac
 
 docker run -it --rm \
     -v "$HOME:$HOME" \
-    -v /var/run/docker.sock:/var/run/docker.sock \
+    ${DOCKER_SOCK_MOUNT:+-v /var/run/docker.sock:/var/run/docker.sock} \
     -w "$(pwd)" \
     -e HOME="$HOME" \
     -e USER="$USER" \
@@ -59,7 +67,7 @@ docker run -it --rm \
     -e TERM="$CONTAINER_TERM" \
     -e COLORTERM="${COLORTERM:-truecolor}" \
     --user "$USER_ID:$GROUP_ID" \
-    --group-add "$(stat -f %g /var/run/docker.sock 2>/dev/null || stat -c %g /var/run/docker.sock)" \
+    ${DOCKER_GROUP:+--group-add "$DOCKER_GROUP"} \
     --hostname devbox \
     --network host \
     "$IMAGE_NAME" fish -c '

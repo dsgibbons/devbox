@@ -49,6 +49,8 @@ docker run -it --rm \
     -e HOST_USER="$USER" \
     -e HOST_UID="$USER_ID" \
     -e HOST_GID="$GROUP_ID" \
+    -e TERM="${TERM:-xterm-256color}" \
+    -e COLORTERM="${COLORTERM:-truecolor}" \
     --user "$USER_ID:$GROUP_ID" \
     --group-add "$(stat -f %g /var/run/docker.sock 2>/dev/null || stat -c %g /var/run/docker.sock)" \
     --hostname devbox \

@@ -22,9 +22,9 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
 # Install helix from prebuilt binary
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "aarch64" ]; then HELIX_ARCH="aarch64"; else HELIX_ARCH="x86_64"; fi && \
-    curl -L "https://github.com/helix-editor/helix/releases/download/25.01.1/helix-25.01.1-${HELIX_ARCH}-linux.tar.xz" | tar -xJ -C /opt && \
-    ln -s /opt/helix-25.01.1-${HELIX_ARCH}-linux/hx /usr/local/bin/hx && \
-    ln -s /opt/helix-25.01.1-${HELIX_ARCH}-linux/runtime /usr/share/helix-runtime
+    curl -L "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-${HELIX_ARCH}-linux.tar.xz" | tar -xJ -C /opt && \
+    ln -s /opt/helix-25.07.1-${HELIX_ARCH}-linux/hx /usr/local/bin/hx && \
+    ln -s /opt/helix-25.07.1-${HELIX_ARCH}-linux/runtime /usr/share/helix-runtime
 ENV HELIX_RUNTIME=/usr/share/helix-runtime
 
 # Install gitui from prebuilt binary

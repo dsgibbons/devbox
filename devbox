@@ -51,10 +51,10 @@ if [ -S /var/run/docker.sock ]; then
     fi
 fi
 
-# Map terminal types to container-compatible equivalents with truecolor support
+# Map terminal types to container-compatible equivalents
+# Use xterm-256color as base, COLORTERM=truecolor enables 24-bit color
 case "$TERM" in
-    xterm-ghostty) CONTAINER_TERM="xterm-direct" ;;
-    *-direct) CONTAINER_TERM="xterm-direct" ;;
+    xterm-ghostty|*-256color|*-direct) CONTAINER_TERM="xterm-256color" ;;
     *) CONTAINER_TERM="${TERM:-xterm-256color}" ;;
 esac
 

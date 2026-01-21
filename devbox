@@ -38,6 +38,12 @@ USER_ID="$(id -u)"
 GROUP_ID="$(id -g)"
 RUNTIME_DIR="/tmp/runtime-$USER_ID"
 
+# Use xterm-256color as fallback for terminals without terminfo in container
+case "$TERM" in
+    xterm-ghostty|*-direct) CONTAINER_TERM="xterm-256color" ;;
+    *) CONTAINER_TERM="${TERM:-xterm-256color}" ;;
+esac
+
 docker run -it --rm \
     -v "$HOME:$HOME" \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -49,7 +55,7 @@ docker run -it --rm \
     -e HOST_USER="$USER" \
     -e HOST_UID="$USER_ID" \
     -e HOST_GID="$GROUP_ID" \
-    -e TERM="${TERM:-xterm-256color}" \
+    -e TERM="$CONTAINER_TERM" \
     -e COLORTERM="${COLORTERM:-truecolor}" \
     --user "$USER_ID:$GROUP_ID" \
     --group-add "$(stat -f %g /var/run/docker.sock 2>/dev/null || stat -c %g /var/run/docker.sock)" \

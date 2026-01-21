@@ -63,4 +63,7 @@ RUN echo 'set -e fish_user_paths; set -gx PATH /usr/local/bin /usr/bin /bin' >> 
 # Trust all git directories (needed when mounting host directories)
 RUN git config --system safe.directory '*'
 
+# Make passwd writable so we can add user at runtime (needed for SSH)
+RUN chmod 666 /etc/passwd
+
 CMD ["fish"]

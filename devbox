@@ -10,6 +10,22 @@ FORCE_BUILD=false
 PULL_IMAGE=false
 PLATFORM=""
 
+# Detect container runtime (docker or podman)
+if command -v docker >/dev/null 2>&1; then
+    CONTAINER_CMD="docker"
+elif command -v podman >/dev/null 2>&1; then
+    CONTAINER_CMD="podman"
+else
+    echo "Error: docker or podman not found" >&2
+    exit 1
+fi
+
+# SELinux volume label (needed for Podman/RHEL-based systems)
+VOLUME_LABEL=""
+if command -v getenforce >/dev/null 2>&1 && [ "$(getenforce 2>/dev/null)" != "Disabled" ]; then
+    VOLUME_LABEL=":z"
+fi
+
 while [ $# -gt 0 ]; do
     case $1 in
         --build)
@@ -33,22 +49,22 @@ done
 # Pull from GHCR if --pull flag is passed
 if [ "$PULL_IMAGE" = true ]; then
     echo "Pulling '$GHCR_IMAGE'..."
-    docker pull "$GHCR_IMAGE"
-    docker tag "$GHCR_IMAGE" "$IMAGE_NAME"
+    $CONTAINER_CMD pull "$GHCR_IMAGE"
+    $CONTAINER_CMD tag "$GHCR_IMAGE" "$IMAGE_NAME"
 # Build the image if it doesn't exist or --build flag is passed
-elif ! docker image inspect "$IMAGE_NAME" &>/dev/null || [ "$FORCE_BUILD" = true ]; then
+elif ! $CONTAINER_CMD image inspect "$IMAGE_NAME" &>/dev/null || [ "$FORCE_BUILD" = true ]; then
     # If Dockerfile exists locally, build; otherwise pull from GHCR
     if [ -f "$SCRIPT_DIR/Dockerfile" ]; then
         echo "Building '$IMAGE_NAME'..."
         if [ -n "$PLATFORM" ]; then
-            docker build --platform "$PLATFORM" -t "$IMAGE_NAME" "$SCRIPT_DIR"
+            $CONTAINER_CMD build --platform "$PLATFORM" -t "$IMAGE_NAME" "$SCRIPT_DIR"
         else
-            docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
+            $CONTAINER_CMD build -t "$IMAGE_NAME" "$SCRIPT_DIR"
         fi
     else
         echo "Pulling '$GHCR_IMAGE'..."
-        docker pull "$GHCR_IMAGE"
-        docker tag "$GHCR_IMAGE" "$IMAGE_NAME"
+        $CONTAINER_CMD pull "$GHCR_IMAGE"
+        $CONTAINER_CMD tag "$GHCR_IMAGE" "$IMAGE_NAME"
     fi
 fi
 
@@ -56,16 +72,23 @@ USER_ID="$(id -u)"
 GROUP_ID="$(id -g)"
 RUNTIME_DIR="/tmp/runtime-$USER_ID"
 
-# Get docker socket group if it exists
-DOCKER_GROUP=""
-DOCKER_SOCK_MOUNT=""
+# Get container socket path and group
+CONTAINER_SOCK=""
+CONTAINER_GROUP=""
 if [ -S /var/run/docker.sock ]; then
-    DOCKER_SOCK_MOUNT="1"
+    CONTAINER_SOCK="/var/run/docker.sock"
+elif [ -S "$XDG_RUNTIME_DIR/podman/podman.sock" ]; then
+    CONTAINER_SOCK="$XDG_RUNTIME_DIR/podman/podman.sock"
+elif [ -S /run/user/$USER_ID/podman/podman.sock ]; then
+    CONTAINER_SOCK="/run/user/$USER_ID/podman/podman.sock"
+fi
+
+if [ -n "$CONTAINER_SOCK" ]; then
     # macOS uses stat -f, Linux uses stat -c
-    if stat -f %g /var/run/docker.sock >/dev/null 2>&1; then
-        DOCKER_GROUP="$(stat -f %g /var/run/docker.sock)"
+    if stat -f %g "$CONTAINER_SOCK" >/dev/null 2>&1; then
+        CONTAINER_GROUP="$(stat -f %g "$CONTAINER_SOCK")"
     else
-        DOCKER_GROUP="$(stat -c %g /var/run/docker.sock)"
+        CONTAINER_GROUP="$(stat -c %g "$CONTAINER_SOCK")"
     fi
 fi
 
@@ -76,9 +99,9 @@ case "$TERM" in
     *) CONTAINER_TERM="${TERM:-xterm-256color}" ;;
 esac
 
-docker run -it --rm \
-    -v "$HOME:$HOME" \
-    ${DOCKER_SOCK_MOUNT:+-v /var/run/docker.sock:/var/run/docker.sock} \
+$CONTAINER_CMD run -it --rm \
+    -v "$HOME:$HOME$VOLUME_LABEL" \
+    ${CONTAINER_SOCK:+-v "$CONTAINER_SOCK:/var/run/docker.sock$VOLUME_LABEL"} \
     -w "$(pwd)" \
     -e HOME="$HOME" \
     -e USER="$USER" \
@@ -91,7 +114,7 @@ docker run -it --rm \
     -e COLORTERM="${COLORTERM:-truecolor}" \
     -e HELIX_RUNTIME="/usr/share/helix-runtime" \
     --user "$USER_ID:$GROUP_ID" \
-    ${DOCKER_GROUP:+--group-add "$DOCKER_GROUP"} \
+    ${CONTAINER_GROUP:+--group-add "$CONTAINER_GROUP"} \
     --hostname devbox \
     --network host \
     "$IMAGE_NAME" fish -c '

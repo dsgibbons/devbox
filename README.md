@@ -30,9 +30,18 @@ This will:
 ### Options
 
 ```bash
-./devbox --build                      # Force rebuild
+./devbox --pull                           # Pull pre-built image from GHCR
+./devbox --build                          # Force local rebuild
 ./devbox --build --platform linux/amd64   # Build for amd64
 ./devbox --build --platform linux/arm64   # Build for arm64
+```
+
+### Pre-built Images
+
+Pre-built images for amd64 and arm64 are available on GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/dsgibbons/devbox:latest
 ```
 
 ## Configuration

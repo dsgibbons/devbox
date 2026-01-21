@@ -57,6 +57,10 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 
     && mv /root/.local/bin/uv /usr/local/bin/ \
     && mv /root/.local/bin/uvx /usr/local/bin/
 
+# Let uv install Python to a writable shared location
+RUN mkdir -p /opt/python && chmod 777 /opt/python
+ENV UV_PYTHON_INSTALL_DIR=/opt/python
+
 # Set fish as default shell and ensure container binaries take precedence
 ENV SHELL=/usr/bin/fish
 RUN echo 'set -e fish_user_paths; set -gx PATH /usr/local/bin /usr/bin /bin' >> /etc/fish/config.fish

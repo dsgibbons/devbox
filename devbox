@@ -38,9 +38,10 @@ USER_ID="$(id -u)"
 GROUP_ID="$(id -g)"
 RUNTIME_DIR="/tmp/runtime-$USER_ID"
 
-# Use xterm-256color as fallback for terminals without terminfo in container
+# Map terminal types to container-compatible equivalents with truecolor support
 case "$TERM" in
-    xterm-ghostty|*-direct) CONTAINER_TERM="xterm-256color" ;;
+    xterm-ghostty) CONTAINER_TERM="xterm-direct" ;;
+    *-direct) CONTAINER_TERM="xterm-direct" ;;
     *) CONTAINER_TERM="${TERM:-xterm-256color}" ;;
 esac
 

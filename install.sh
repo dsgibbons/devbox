@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 # Install devbox to ~/.local/bin
@@ -12,8 +12,11 @@ chmod +x "$INSTALL_DIR/devbox"
 echo "Installed devbox to $INSTALL_DIR/devbox"
 
 # Check if INSTALL_DIR is in PATH
-if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-    echo ""
-    echo "Add to your PATH:"
-    echo "  export PATH=\"$INSTALL_DIR:\$PATH\""
-fi
+case ":$PATH:" in
+    *":$INSTALL_DIR:"*) ;;
+    *)
+        echo ""
+        echo "Add to your PATH:"
+        echo "  export PATH=\"$INSTALL_DIR:\$PATH\""
+        ;;
+esac

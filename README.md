@@ -58,4 +58,4 @@ Your `~/.config` directory is mounted automatically, so configs for fish, helix,
 
 ## Requirements
 
-- Docker
+- Docker or Podman

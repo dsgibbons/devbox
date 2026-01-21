@@ -1,0 +1,8 @@
+.git/
+.github/
+.claude/
+.notifier
+README.md
+LICENSE
+install.sh
+devbox

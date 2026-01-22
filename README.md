@@ -12,6 +12,8 @@ A containerised development environment with all my dev tools pre-installed.
 - **fnm** - Fast Node Manager
 - **uv** - Python package manager
 - **docker** - Container CLI
+- **gh** - GitHub CLI
+- **gh copilot** - GitHub Copilot CLI
 - **g++** / **clang** - C++ compilers
 
 ## Installation
@@ -38,10 +40,10 @@ This will:
 ### Options
 
 ```bash
-./devbox --pull                           # Pull pre-built image from GHCR
-./devbox --build                          # Force local rebuild
-./devbox --build --platform linux/amd64   # Build for amd64
-./devbox --build --platform linux/arm64   # Build for arm64
+devbox pull                           # Pull pre-built image from GHCR
+devbox build                          # Force local rebuild from Dockerfile
+devbox build --platform linux/amd64   # Build for amd64
+devbox build --platform linux/arm64   # Build for arm64
 ```
 
 ### Pre-built Images

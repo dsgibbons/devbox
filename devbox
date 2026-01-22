@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run the devtools container with your home directory mounted
-# Usage: ./devbox [--build] [--pull] [--platform linux/amd64|linux/arm64]
+# Usage: ./devbox [build|pull] [--platform linux/amd64|linux/arm64]
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 IMAGE_NAME="devtools"
@@ -26,19 +26,44 @@ if command -v getenforce >/dev/null 2>&1 && [ "$(getenforce 2>/dev/null)" != "Di
     VOLUME_LABEL=":z"
 fi
 
+show_help() {
+    cat <<EOF
+Usage: devbox [command] [options]
+
+Commands:
+  (none)    Start the devbox container
+  build     Build image from Dockerfile
+  pull      Pull pre-built image from GHCR
+
+Options:
+  --platform <platform>   Specify platform (linux/amd64 or linux/arm64)
+  --help, -h              Show this help message
+
+Examples:
+  devbox                              # Start container (pulls if needed)
+  devbox build                        # Build from Dockerfile
+  devbox pull                         # Pull from GHCR
+  devbox build --platform linux/amd64 # Build for specific platform
+EOF
+    exit 0
+}
+
 while [ $# -gt 0 ]; do
     case $1 in
-        --build)
+        build|--build)
             FORCE_BUILD=true
             shift
             ;;
-        --pull)
+        pull|--pull)
             PULL_IMAGE=true
             shift
             ;;
         --platform)
             PLATFORM="$2"
             shift 2
+            ;;
+        --help|-h)
+            show_help
             ;;
         *)
             shift

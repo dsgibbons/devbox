@@ -20,6 +20,20 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
     && apt-get update && apt-get install -y docker-ce-cli docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
+# Install GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update && apt-get install -y gh \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install GitHub Copilot CLI extension manually (avoids auth requirement)
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "aarch64" ]; then COPILOT_ARCH="linux-arm64"; else COPILOT_ARCH="linux-amd64"; fi && \
+    mkdir -p /usr/share/gh-extensions/github/gh-copilot && \
+    curl -L "https://github.com/github/gh-copilot/releases/latest/download/${COPILOT_ARCH}" -o /usr/share/gh-extensions/github/gh-copilot/gh-copilot && \
+    chmod +x /usr/share/gh-extensions/github/gh-copilot/gh-copilot
+ENV GH_EXTENSIONS_DIR=/usr/share/gh-extensions
+
 # Install helix from prebuilt binary
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "aarch64" ]; then HELIX_ARCH="aarch64"; else HELIX_ARCH="x86_64"; fi && \

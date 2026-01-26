@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     ncurses-term \
     fish \
+    tree \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Docker CLI

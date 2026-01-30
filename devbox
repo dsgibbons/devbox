@@ -5,6 +5,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 IMAGE_NAME="devbox"
+CONTAINER_NAME="devbox"
 GHCR_IMAGE="ghcr.io/dsgibbons/devbox:latest"
 FORCE_BUILD=false
 PULL_IMAGE=false
@@ -31,22 +32,29 @@ show_help() {
 Usage: devbox [command] [options]
 
 Commands:
-  (none)    Start the devbox container
+  (none)    Start or attach to the devbox container
   build     Build image from Dockerfile
   pull      Pull pre-built image from GHCR
+  stop      Stop the running devbox container
 
 Options:
   --platform <platform>   Specify platform (linux/amd64 or linux/arm64)
   --help, -h              Show this help message
 
+The container runs in the background and survives SSH disconnections.
+Just run 'devbox' again to reattach.
+
 Examples:
-  devbox                              # Start container (pulls if needed)
+  devbox                              # Start or attach to container
   devbox build                        # Build from Dockerfile
   devbox pull                         # Pull from GHCR
+  devbox stop                         # Stop the container
   devbox build --platform linux/amd64 # Build for specific platform
 EOF
     exit 0
 }
+
+STOP_CONTAINER=false
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -56,6 +64,10 @@ while [ $# -gt 0 ]; do
             ;;
         pull|--pull)
             PULL_IMAGE=true
+            shift
+            ;;
+        stop|--stop)
+            STOP_CONTAINER=true
             shift
             ;;
         --platform)
@@ -97,6 +109,23 @@ USER_ID="$(id -u)"
 GROUP_ID="$(id -g)"
 RUNTIME_DIR="/tmp/runtime-$USER_ID"
 
+# Handle stop command
+if [ "$STOP_CONTAINER" = true ]; then
+    if $CONTAINER_CMD ps -q -f "name=^${CONTAINER_NAME}$" | grep -q .; then
+        echo "Stopping '$CONTAINER_NAME'..."
+        $CONTAINER_CMD stop "$CONTAINER_NAME"
+        $CONTAINER_CMD rm "$CONTAINER_NAME"
+    else
+        echo "Container '$CONTAINER_NAME' is not running"
+    fi
+    exit 0
+fi
+
+# Exit early if only building/pulling
+if [ "$FORCE_BUILD" = true ] || [ "$PULL_IMAGE" = true ]; then
+    exit 0
+fi
+
 # Get container socket path and group
 CONTAINER_SOCK=""
 CONTAINER_GROUP=""
@@ -124,10 +153,23 @@ case "$TERM" in
     *) CONTAINER_TERM="${TERM:-xterm-256color}" ;;
 esac
 
-$CONTAINER_CMD run -it --rm \
+# Check if container is already running
+if $CONTAINER_CMD ps -q -f "name=^${CONTAINER_NAME}$" | grep -q .; then
+    echo "Attaching to running container '$CONTAINER_NAME'..."
+    exec $CONTAINER_CMD exec -it -w "$(pwd)" "$CONTAINER_NAME" fish
+
+# Check if container exists but is stopped
+elif $CONTAINER_CMD ps -aq -f "name=^${CONTAINER_NAME}$" | grep -q .; then
+    echo "Removing stopped container '$CONTAINER_NAME'..."
+    $CONTAINER_CMD rm "$CONTAINER_NAME"
+fi
+
+# Start new container in detached mode
+echo "Starting new container '$CONTAINER_NAME'..."
+$CONTAINER_CMD run -d \
+    --name "$CONTAINER_NAME" \
     -v "$HOME:$HOME$VOLUME_LABEL" \
     ${CONTAINER_SOCK:+-v "$CONTAINER_SOCK:/var/run/docker.sock$VOLUME_LABEL"} \
-    -w "$(pwd)" \
     -e HOME="$HOME" \
     -e USER="$USER" \
     -e PATH="/usr/local/bin:/usr/bin:/bin" \
@@ -145,5 +187,9 @@ $CONTAINER_CMD run -it --rm \
     "$IMAGE_NAME" fish -c '
         mkdir -p $XDG_RUNTIME_DIR && chmod 700 $XDG_RUNTIME_DIR
         echo "$HOST_USER:x:$HOST_UID:$HOST_GID::$HOME:/usr/bin/fish" >> /etc/passwd
-        exec fish
+        sleep infinity
     '
+
+# Attach to the newly started container
+echo "Attaching to container..."
+exec $CONTAINER_CMD exec -it -w "$(pwd)" "$CONTAINER_NAME" fish

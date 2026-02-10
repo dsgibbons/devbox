@@ -78,9 +78,16 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 
 RUN mkdir -p /opt/python && chmod 777 /opt/python
 ENV UV_PYTHON_INSTALL_DIR=/opt/python
 
+# Install Rust via rustup to a shared location
+ENV RUSTUP_HOME=/opt/rustup
+ENV CARGO_HOME=/opt/cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path \
+    && chmod -R 777 /opt/rustup /opt/cargo
+ENV PATH="/opt/cargo/bin:${PATH}"
+
 # Set fish as default shell and ensure container binaries take precedence
 ENV SHELL=/usr/bin/fish
-RUN echo 'set -e fish_user_paths; set -gx PATH /usr/local/bin /usr/bin /bin' >> /etc/fish/config.fish
+RUN echo 'set -e fish_user_paths; set -gx PATH /opt/cargo/bin /usr/local/bin /usr/bin /bin' >> /etc/fish/config.fish
 
 # Trust all git directories (needed when mounting host directories)
 RUN git config --system safe.directory '*'

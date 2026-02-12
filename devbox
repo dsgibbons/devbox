@@ -3,6 +3,8 @@
 # Run the devbox container with your home directory mounted
 # Usage: ./devbox [build|pull] [--platform linux/amd64|linux/arm64]
 
+DEVBOX_VERSION="0.9"
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 IMAGE_NAME="devbox"
 CONTAINER_NAME="devbox"
@@ -36,6 +38,7 @@ Commands:
   build     Build image from Dockerfile
   pull      Pull pre-built image from GHCR
   stop      Stop the running devbox container
+  version   Show devbox version
 
 Options:
   --platform <platform>   Specify platform (linux/amd64 or linux/arm64)
@@ -69,6 +72,10 @@ while [ $# -gt 0 ]; do
         stop|--stop)
             STOP_CONTAINER=true
             shift
+            ;;
+        version|--version|-v|-V)
+            echo "devbox $DEVBOX_VERSION"
+            exit 0
             ;;
         --platform)
             PLATFORM="$2"

@@ -12,13 +12,17 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     gnupg \
     unzip \
-    capnproto \
-    libcapnp-dev \
     ncurses-term \
     fish \
     tree \
     lsof \
     htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Cap'n Proto compiler and development libraries
+RUN apt-get update && apt-get install -y \
+    capnproto \
+    libcapnp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Docker CLI

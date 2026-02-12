@@ -17,7 +17,7 @@ Before finishing any PR or commit that touches the Dockerfile, verify that READM
 
 ## Important: Version Bumping
 
-After every change (Dockerfile, devbox script, README, etc.), you **must**:
+When a change affects the Dockerfile (directly or indirectly), you **must**:
 
 1. Increment `DEVBOX_VERSION` in **both** `Dockerfile` (`ENV DEVBOX_VERSION=...`) and `devbox` (`DEVBOX_VERSION="..."`) — use minor version bumps (e.g. 0.9 → 0.10)
 2. Commit all changes

@@ -3,7 +3,7 @@
 # Run the devbox container with your home directory mounted
 # Usage: ./devbox [build|pull] [--platform linux/amd64|linux/arm64]
 
-DEVBOX_VERSION="0.9"
+DEVBOX_VERSION="0.10"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 IMAGE_NAME="devbox"

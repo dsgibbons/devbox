@@ -28,6 +28,7 @@ A containerised development environment with all my dev tools pre-installed. Wor
 | **fnm** | Fast Node.js version manager |
 | **uv** / **uvx** | Fast Python package manager and runner |
 | **rust** / **cargo** | Rust toolchain via rustup |
+| **capnp** | Cap'n Proto compiler and development libraries |
 | **g++** / **clang** | C++ compilers |
 | **git** | Version control |
 | **gitui** | Terminal UI for git operations |

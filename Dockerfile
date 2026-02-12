@@ -1,5 +1,7 @@
 FROM debian:bookworm-slim
 
+ENV DEVBOX_VERSION=0.9
+
 # Install runtime dependencies and C++ compiler
 RUN apt-get update && apt-get install -y \
     g++ \

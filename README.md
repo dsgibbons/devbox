@@ -80,6 +80,7 @@ devbox              # Start or attach to the container
 devbox stop         # Stop the running container
 devbox pull         # Pull pre-built image from GHCR
 devbox build        # Build image locally from Dockerfile
+devbox version      # Show devbox version
 ```
 
 ### Build Options

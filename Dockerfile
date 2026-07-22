@@ -1,6 +1,6 @@
 FROM debian:bookworm-slim
 
-ENV DEVBOX_VERSION=0.10
+ENV DEVBOX_VERSION=0.12
 
 # Install runtime dependencies and C++ compiler
 RUN apt-get update && apt-get install -y \
@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     capnproto \
     libcapnp-dev \
+    portaudio19-dev \
     ncurses-term \
     fish \
     tree \

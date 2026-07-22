@@ -29,6 +29,7 @@ A containerised development environment with all my dev tools pre-installed. Wor
 | **uv** / **uvx** | Fast Python package manager and runner |
 | **rust** / **cargo** | Rust toolchain via rustup |
 | **capnp** | Cap'n Proto compiler and development libraries |
+| **portaudio** | Cross-platform audio I/O library and development headers |
 | **g++** / **clang** | C++ compilers |
 | **git** | Version control |
 | **gitui** | Terminal UI for git operations |

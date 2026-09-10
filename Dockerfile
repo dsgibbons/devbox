@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     capnproto \
     libcapnp-dev \
     portaudio19-dev \
+    libsndfile1 \
     ncurses-term \
     fish \
     tree \

@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
     fish \
     tree \
     lsof \
-    llvm \
+    llvm-16 \
+    libllvm16 \
     htop \
     && rm -rf /var/lib/apt/lists/*
 

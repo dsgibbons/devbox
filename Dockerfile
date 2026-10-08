@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     fish \
     tree \
     lsof \
+    llvm \
     htop \
     && rm -rf /var/lib/apt/lists/*
 
